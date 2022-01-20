@@ -6,6 +6,9 @@ import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -20,6 +23,8 @@ public class Starter extends Application
     private Stage stage;
     private Map<String, Long> sizes;
     private ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+    private PieChart pieChart;
+    static private ProgressBar progb;
 
     public static void main(String[] args) {
         launch(args);
@@ -29,7 +34,8 @@ public class Starter extends Application
     public void start(Stage stage) throws Exception {
         this.stage=stage;
         stage.setTitle("Hard disk analyzer");
-
+        progb = new ProgressBar();
+        progb.setProgress(0.0);
         Button button = new Button("Choose directory");
         button.setOnAction((event->{
             File file = new DirectoryChooser().showDialog(stage);
@@ -38,26 +44,43 @@ public class Starter extends Application
             buildChart(path);
 
         }));
-        StackPane pane = new StackPane();
-        pane.getChildren().add(button);
+        BorderPane pane = new BorderPane();
+        pane.setCenter(button);
+        pane.setBottom(progb);
         stage.setScene(new Scene(pane,400,280));
         stage.show();
     }
 
     private void buildChart(String path) {
-        PieChart pieChart = new PieChart(pieChartData);
+        pieChart = new PieChart(pieChartData);
 
         refillChart(path);
-        stage.setScene(new Scene(pieChart , 1000,700));
+        Button button = new Button(path);
+        button.setOnAction(event->refillChart(path));
+        ProgressBar pb = new ProgressBar();
+
+        BorderPane pane = new BorderPane();
+        pane.setTop(button);
+        pane.setCenter(pieChart);
+        pane.setBottom(pb);
+        stage.setScene(new Scene(pane , 1000,700));
         stage.show();
     }
 
     private void refillChart(String path) {
         pieChartData.clear();
         pieChartData.addAll(sizes.entrySet().parallelStream().filter(entry->{
+
             Path parent = Path.of(entry.getKey()).getParent();
             return parent != null && parent.toString().equals(path);
         }).map(entry -> new PieChart.Data(entry.getKey(),entry.getValue())).collect(Collectors.toList())
         );
+
+        pieChart.getData().forEach(data ->{
+            data.getNode().addEventHandler(MouseEvent.MOUSE_PRESSED,event->refillChart(data.getName()));
+        });
+
+
+
     }
 }
