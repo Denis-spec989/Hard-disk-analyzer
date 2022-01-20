@@ -9,10 +9,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Map;
@@ -24,7 +22,6 @@ public class Starter extends Application
     private Map<String, Long> sizes;
     private ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
     private PieChart pieChart;
-    static private ProgressBar progb;
 
     public static void main(String[] args) {
         launch(args);
@@ -34,15 +31,13 @@ public class Starter extends Application
     public void start(Stage stage) throws Exception {
         this.stage=stage;
         stage.setTitle("Hard disk analyzer");
-        progb = new ProgressBar();
-        progb.setProgress(0.0);
+        ProgressBar progb= new ProgressBar();
         Button button = new Button("Choose directory");
         button.setOnAction((event->{
-            File file = new DirectoryChooser().showDialog(stage);
-            String path = file.getAbsolutePath();
-            sizes = new Analyzer().calculateDirectorySize(Path.of(path));
-            buildChart(path);
-
+                File file = new DirectoryChooser().showDialog(stage);
+                String path = file.getAbsolutePath();
+                sizes = new Analyzer().calculateDirectorySize(Path.of(path));
+                buildChart(path);
         }));
         BorderPane pane = new BorderPane();
         pane.setCenter(button);
@@ -53,12 +48,10 @@ public class Starter extends Application
 
     private void buildChart(String path) {
         pieChart = new PieChart(pieChartData);
-
         refillChart(path);
         Button button = new Button(path);
         button.setOnAction(event->refillChart(path));
         ProgressBar pb = new ProgressBar();
-
         BorderPane pane = new BorderPane();
         pane.setTop(button);
         pane.setCenter(pieChart);
@@ -69,18 +62,14 @@ public class Starter extends Application
 
     private void refillChart(String path) {
         pieChartData.clear();
-        pieChartData.addAll(sizes.entrySet().parallelStream().filter(entry->{
-
+        pieChartData.addAll(sizes.entrySet().stream().filter(entry->{
             Path parent = Path.of(entry.getKey()).getParent();
             return parent != null && parent.toString().equals(path);
         }).map(entry -> new PieChart.Data(entry.getKey(),entry.getValue())).collect(Collectors.toList())
         );
-
         pieChart.getData().forEach(data ->{
             data.getNode().addEventHandler(MouseEvent.MOUSE_PRESSED,event->refillChart(data.getName()));
         });
-
-
-
     }
+
 }

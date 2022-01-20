@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 public class Analyzer {
 
-
     private HashMap<String, Long> sizes;
 
     public Map<String,Long> calculateDirectorySize(Path path) {
@@ -40,14 +39,10 @@ public class Analyzer {
     {
         String key = path.toString();
         sizes.put(key,size+sizes.getOrDefault(key,0L));
-
         Path parent = path.getParent();
-
         if(parent != null)
         {
             updateDirSize(parent,size);
         }
-
-
     }
 }
