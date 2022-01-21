@@ -7,11 +7,13 @@ import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import java.io.File;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,6 +33,9 @@ public class Starter extends Application
     public void start(Stage stage) throws Exception {
         this.stage=stage;
         stage.setTitle("Hard disk analyzer");
+        InputStream icon = getClass().getResourceAsStream("/images/someImage.jpg");
+        Image image = new Image(icon);
+        stage.getIcons().add(image);
         ProgressBar progb= new ProgressBar();
         Button button = new Button("Choose directory");
         button.setOnAction((event->{
